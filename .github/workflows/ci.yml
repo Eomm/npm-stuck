@@ -7,6 +7,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         node-version: [15, 16]
         os: [macos-latest, ubuntu-latest, windows-latest]
@@ -17,6 +18,10 @@ jobs:
         uses: actions/setup-node@v2.4.1
         with:
           node-version: ${{ matrix.node-version }}
+      
+      - name: Update npm to the last
+        if: ${{ matrix.node-version == 15 }}
+        run: npm install npm@7 -g
 
       - name: Install Dependencies
         run: |
