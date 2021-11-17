@@ -1,0 +1,43 @@
+name: Backend CI
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [15, 16]
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      
+      - name: Update npm v7 to the lastest
+        if: ${{ matrix.node-version == 15 }}
+        run: |
+          npm install npm@7 -g
+          npm -v
+
+      - name: Update npm v8 to the lastest
+        if: ${{ matrix.node-version == 16 }}
+        run: |
+          npm install npm@8 -g
+          npm -v
+
+      - name: Install Dependencies
+        run: |
+          npm init --yes
+          npm init -w pkg-a --yes
+          npm init -w pkg-b --yes
+          npm install jest -D -w pkg-a
+          npm install react-scripts -w pkg-b
+          npm set-script test "react-scripts test" -w pkg-b
+          npm ls babel-jest
+          npm test -w pkg-b
